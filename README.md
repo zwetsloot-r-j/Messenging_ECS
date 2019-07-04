@@ -11,7 +11,9 @@ If non-deterministic actions occur without passing through the message system, t
 
 ### 2019 July 4th
 
-This library currently uses the following package versions:
+This library is made in Unity 2019.1.0f2
+
+It currently uses the following package versions:
 
 - Entities: preview.30 - 0.0.12
 - Hybrid Renderer: preview.10 - 0.0.1
