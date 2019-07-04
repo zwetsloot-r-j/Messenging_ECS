@@ -1,0 +1,13 @@
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+*.swp
+sysinfo.txt
+*.apk
+*.unitypackage
+*.csproj
+*.sln
+.idea/
