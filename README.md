@@ -13,9 +13,9 @@ If non-deterministic actions occur without passing through the message system, t
 
 This library currently uses the following package versions:
 
-Entities: preview.30 - 0.0.12
-Hybrid Renderer: preview.10 - 0.0.1
-Lightweight RP: 5.7.2
+- Entities: preview.30 - 0.0.12
+- Hybrid Renderer: preview.10 - 0.0.1
+- Lightweight RP: 5.7.2
 
 The Entities package is required to run the library.
 The demo depends on the Hybrid Renderer and the Lightweight RP.
@@ -48,6 +48,8 @@ To replay the last session, select the Settings object, and check the Replay Ena
 When hitting the play button, the recording of the last played session will be shown.
 
 ## Usage and concepts
+
+### Usage
 
 - Copy the contents of the Assets/Scripts/Messenging into your projects Plugins folder.
 - Create an empty game object in your scene, and name it "Settings" or something similar.
