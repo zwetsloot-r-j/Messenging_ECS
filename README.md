@@ -11,6 +11,8 @@ If non-deterministic actions occur without passing through the message system, t
 
 A simple demo is included to illustrate how the messenging system can be used.
 
+![](docs/images/demo_01.png)
+
 ### Playing the demo
 
 The cube can be moved around using the wasd keys.
