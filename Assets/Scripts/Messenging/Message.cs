@@ -90,7 +90,7 @@ namespace Messenging {
         if (receivers[i].Id == address.Id) {
           receiver = receivers[i];
           payload = payloads[i];
-          return true;;
+          return true;
         }
       }
       receiver = default(Receiver);
@@ -107,7 +107,7 @@ namespace Messenging {
       for (var i = 0; i < receivers.Length; i++) {
         if (receivers[i].Id == address.Id) {
           receiver = receivers[i];
-          return true;;
+          return true;
         }
       }
       receiver = default(Receiver);
