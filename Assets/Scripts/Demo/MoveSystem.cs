@@ -8,60 +8,41 @@ using Messenging;
 
 namespace Messenging.Demo {
 
-  class MoveSystem : JobComponentSystem {
-    EntityQuery moveMessageQuery;
-    BeginInitializationEntityCommandBufferSystem commandBufferSystem;
+  class MoveSystem : MessageSystem<MovePayload> {
 
     [BurstCompile]
-    struct TranslateJob : IJobForEach<Translation, Address> {
+    struct MoveJob : IJobForEach<Address, Translation> {
+      [ReadOnly]
+      public EntityCommandBuffer CommandBuffer;
+
       [ReadOnly]
       [DeallocateOnJobCompletion]
       public NativeArray<Receiver> Receivers;
 
       [ReadOnly]
       [DeallocateOnJobCompletion]
-      public NativeArray<MovePayload> MovePayloads;
+      public NativeArray<MovePayload> Payloads;
 
-      public void Execute(ref Translation translation, [ReadOnly] ref Address address) {
-        for (var i = 0; i < Receivers.Length; i++) {
-          if (Receivers[i].Id == address.Id) {
-            translation.Value += MovePayloads[i].Translation;
-            break;
-          }
+      public void Execute(
+        [ReadOnly] ref Address address,
+        ref Translation translation
+      ) {
+        Receiver receiver;
+        MovePayload payload;
+        if (Message.FindPayloadForReceiver<MovePayload>(Receivers, Payloads, address, out payload, out receiver)) {
+          translation.Value += payload.Translation;
         }
       }
     }
 
-    [BurstCompile]
-    struct DestroyJob : IJobForEachWithEntity<MovePayload, Receiver> {
-      [ReadOnly]
-      public EntityCommandBuffer CommandBuffer;
-
-      public void Execute(Entity entity, int index, [ReadOnly] ref MovePayload move, [ReadOnly] ref Receiver receiver) {
-        CommandBuffer.DestroyEntity(entity);
-      }
-    }
-
-    protected override void OnCreate() {
-      moveMessageQuery = GetEntityQuery(typeof(Receiver), typeof(MovePayload));
-      commandBufferSystem = World.GetOrCreateSystem<BeginInitializationEntityCommandBufferSystem>();
-    }
-
-    protected override JobHandle OnUpdate(JobHandle handle) {
-      var destroyJob = new DestroyJob {
-        CommandBuffer = commandBufferSystem.CreateCommandBuffer()
+    protected override JobHandle HandleMessage(JobHandle handle, EntityCommandBuffer commandBuffer) {
+      var moveJob = new MoveJob {
+        CommandBuffer = commandBuffer,
+        Receivers = Receivers,
+        Payloads = Payloads,
       };
 
-      var translateJob = new TranslateJob {
-        Receivers = moveMessageQuery.ToComponentDataArray<Receiver>(Allocator.TempJob),
-        MovePayloads = moveMessageQuery.ToComponentDataArray<MovePayload>(Allocator.TempJob)
-      };
-
-      handle = translateJob.Schedule(this, handle);
-      handle = destroyJob.Schedule(this, handle);
-      commandBufferSystem.AddJobHandleForProducer(handle);
-
-      return handle;
+      return moveJob.Schedule(this, handle);
     }
   }
 
