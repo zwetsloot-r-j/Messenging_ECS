@@ -78,5 +78,41 @@ namespace Messenging {
     public void DeserializePayload() {
       Payload = converter.Revert();
     }
+
+    public static bool FindPayloadForReceiver<TPayload>(
+      NativeArray<Receiver> receivers,
+      NativeArray<TPayload> payloads,
+      Address address,
+      out TPayload payload,
+      out Receiver receiver
+    ) where TPayload : struct, IPayload {
+      for (var i = 0; i < receivers.Length; i++) {
+        if (receivers[i].Id == address.Id) {
+          receiver = receivers[i];
+          payload = payloads[i];
+          return true;
+        }
+      }
+      receiver = default(Receiver);
+      payload = default(TPayload);
+      return false;
+    }
+
+
+    public static bool FindReceiver(
+      NativeArray<Receiver> receivers,
+      Address address,
+      out Receiver receiver
+    ) {
+      for (var i = 0; i < receivers.Length; i++) {
+        if (receivers[i].Id == address.Id) {
+          receiver = receivers[i];
+          return true;
+        }
+      }
+      receiver = default(Receiver);
+      return false;
+
+    }
   }
 }
