@@ -9,6 +9,11 @@ namespace Messenging {
       Func<Message, IResult<Message, Reason>> next,
       EntityCommandBuffer commandBuffer
     );
+
+    Func<Message, IResult<Message, Reason>> Apply(
+      Func<Message, IResult<Message, Reason>> next,
+      EntityManager entityManager
+    );
   }
 
 }

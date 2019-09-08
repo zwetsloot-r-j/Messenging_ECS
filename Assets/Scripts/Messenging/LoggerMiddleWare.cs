@@ -11,6 +11,19 @@ namespace Messenging {
       Func<Message, IResult<Message, Reason>> next,
       EntityCommandBuffer commandBuffer
     ) {
+      return DoApply(next);
+    }
+
+    public Func<Message, IResult<Message, Reason>> Apply(
+      Func<Message, IResult<Message, Reason>> next,
+      EntityManager entityManager
+    ) {
+      return DoApply(next);
+    }
+
+    private Func<Message, IResult<Message, Reason>> DoApply(
+      Func<Message, IResult<Message, Reason>> next
+    ) {
       return (message) => {
         if (!GlobalSettings.LoggingEnabled) {
           return next(message);
@@ -26,6 +39,7 @@ namespace Messenging {
         return next(message);
       };
     }
+
   }
 
 }

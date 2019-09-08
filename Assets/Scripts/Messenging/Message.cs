@@ -42,8 +42,16 @@ namespace Messenging {
       DoSend<EmptyPayload>(commandBuffer);
     }
 
+    public virtual void Send(EntityManager entityManager) {
+      DoSend<EmptyPayload>(entityManager);
+    }
+
     protected void DoSend<T>(EntityCommandBuffer commandBuffer) where T : struct, IPayload {
       ApplyMiddleWare(commandBuffer).Do(msg => CreateEntity<T>(msg, commandBuffer));
+    }
+
+    protected void DoSend<T>(EntityManager entityManager) where T : struct, IPayload {
+      ApplyMiddleWare(entityManager).Do(msg => CreateEntity<T>(msg, entityManager));
     }
 
     void CreateEntity<T>(Message message, EntityCommandBuffer commandBuffer) where T : struct, IPayload {
@@ -56,10 +64,27 @@ namespace Messenging {
       }
     }
 
+    void CreateEntity<T>(Message message, EntityManager entityManager) where T : struct, IPayload {
+      var entity = entityManager.CreateEntity();
+
+      entityManager.AddComponentData(entity, new Receiver { Id = message.To });
+      entityManager.AddComponentData(entity, (T)Payload);
+      if (message.From != null) {
+        entityManager.AddComponentData(entity, new Sender { Id = message.From });
+      }
+    }
+
     IResult<Message, Reason> ApplyMiddleWare(EntityCommandBuffer commandBuffer) {
       return MiddleWare.Aggregate<IMessageMiddleWare, Func<Message, IResult<Message, Reason>>>(
         (msg) => new Ok<Message, Reason>(msg),
         (acc, next) => next.Apply(acc, commandBuffer)
+      )(this);
+    }
+
+    IResult<Message, Reason> ApplyMiddleWare(EntityManager entityManager) {
+      return MiddleWare.Aggregate<IMessageMiddleWare, Func<Message, IResult<Message, Reason>>>(
+        (msg) => new Ok<Message, Reason>(msg),
+        (acc, next) => next.Apply(acc, entityManager)
       )(this);
     }
 
@@ -112,7 +137,6 @@ namespace Messenging {
       }
       receiver = default(Receiver);
       return false;
-
     }
   }
 }
