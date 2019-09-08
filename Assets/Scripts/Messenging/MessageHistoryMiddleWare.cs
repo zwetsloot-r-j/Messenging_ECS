@@ -27,6 +27,30 @@ namespace Messenging {
         return next(message);
       };
     }
+
+    public Func<Message, IResult<Message, Reason>> Apply(
+      Func<Message, IResult<Message, Reason>> next,
+      EntityManager entityManager
+    ) {
+      return (message) => {
+        if (GlobalSettings.ReplayEnabled && !message.IsReplayTarget) {
+          return new Error<Message, Reason>(Reason.Canceled);
+        }
+
+        if (GlobalSettings.ReplayEnabled && message.IsReplayTarget) {
+          return next(message);
+        }
+
+        message.Frame = MessageHistorySystem.Frame;
+        var entity = entityManager.CreateEntity();
+        entityManager.AddComponentData(entity, new MessageHistoryRecord {
+          Record = StringStore.Store(message.Serialize()),
+        });
+
+        return next(message);
+      };
+    }
+
   }
 
 }
